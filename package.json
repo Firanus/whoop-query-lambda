@@ -6,7 +6,8 @@
   "author": "Ivan Tchernev",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "run:local": "docker run --rm -v \"$PWD\":/var/task:ro,delegated lambci/lambda:nodejs12.x dist.handler '{\"some\": \"event\"}'"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.68",
