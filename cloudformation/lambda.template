@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  ImageName:
+    Type: String
+    Default: whoop-query-lambda
+  ImageTag:
+    Type: String
+    Default: latest
+  BucketName:
+    Type: String
+    Default: personal-data-lake-ivan
+
+Resources:
+  WhoopQueryLambda:
+    Type: AWS::Lambda::Function
+    # Lambdas via ECR are a new feature, hence errors
+    Properties:
+      FunctionName: whoop-query-lambda
+      Role:
+        'Fn::GetAtt':
+          - WhoopQueryLambdaRole
+          - Arn
+      Code:
+        ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ImageName}:${ImageTag}
+      PackageType: Image
+  WhoopQueryLambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: WhoopQueryLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: AWSLambdaBasicExecutionRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+        - PolicyName: AmazonS3ListObjectsInBucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 's3:ListBucket'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${BucketName}'
+        - PolicyName: AmazonS3ReadWriteObjectsInBucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${BucketName}/*'
