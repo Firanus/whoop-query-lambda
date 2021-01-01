@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "run:local": "docker run --rm -v \"$PWD\":/var/task:ro,delegated lambci/lambda:nodejs12.x dist.handler '{\"some\": \"event\"}'"
+    "run:local": "npm run build && docker run --env-file .env --rm -v \"$PWD\":/var/task:ro,delegated lambci/lambda:nodejs12.x dist.handler '{\"some\": \"event\"}'"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.68",
@@ -20,5 +20,8 @@
     "eslint-plugin-import": "^2.22.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
   }
 }
