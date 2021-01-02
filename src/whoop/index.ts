@@ -13,7 +13,7 @@ const whoopURL = 'https://api-7.whoop.com/';
 const authenticateEndPoint = 'oauth/token';
 const cyclesEndpoint = (userID: number, startDate: Date, endDate: Date) => `users/${userID}/cycles?start=${formatISO(startDate)}&end=${formatISO(endDate)}`;
 
-export const authenticateWithWhoop = async (): Promise<AuthenticationResponseData> => {
+const authenticateWithWhoop = async (): Promise<AuthenticationResponseData> => {
   const postData = {
     username: process.env.WHOOP_USERNAME,
     password: process.env.WHOOP_PASSWORD,
@@ -53,3 +53,22 @@ export const pullDataFromWhoopForLastDay = async (): Promise<WhoopCyclesResponse
     throw new Error(`Experienced error while getting data from Whoop: ${JSON.stringify(error)}`);
   }
 };
+
+interface S3UploadData {
+  fileName: string;
+  file: any;
+}
+
+export const processWhoopDataForUpload = (
+  cyclesData: WhoopCyclesResponseData,
+): S3UploadData[] => cyclesData.map((datum) => {
+  if (!datum.days || datum.days.length !== 1) {
+    throw new Error('This data did not have an easily accessible date stamp');
+  }
+
+  const fileName = `${datum.days[0]}.json`;
+  return {
+    fileName,
+    file: JSON.stringify(datum),
+  };
+});

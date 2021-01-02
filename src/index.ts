@@ -1,10 +1,15 @@
 import type { Handler } from 'aws-lambda';
-import { pullDataFromWhoopForLastDay } from './whoop';
+import { uploadFileToS3Bucket } from './s3';
+import { pullDataFromWhoopForLastDay, processWhoopDataForUpload } from './whoop';
 
 // eslint-disable-next-line import/prefer-default-export
-export const handler: Handler = async (event): Promise<any> => {
-  // 1. Pull latest data from Whoop
-  await pullDataFromWhoopForLastDay();
+export const handler: Handler = async (): Promise<any> => {
+  // Get Data
+  const whoopResponseData = await pullDataFromWhoopForLastDay();
 
-  // 2. Store data in S3
+  // Process and Upload
+  const dataToUpload = processWhoopDataForUpload(whoopResponseData);
+  await Promise.all(
+    dataToUpload.map((dataPoint) => uploadFileToS3Bucket(dataPoint.fileName, dataPoint.file)),
+  );
 };
