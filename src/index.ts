@@ -14,5 +14,7 @@ export const handler: Handler = async (): Promise<any> => {
   );
 
   // eslint-disable-next-line no-console
-  console.log(`Successfully uploaded the following files: ${dataToUpload.reduce((acc, curr) => `${acc},${curr.fileName}`, '')}`);
+  console.log(`Successfully uploaded the following files: ${
+    dataToUpload.reduce((acc, curr) => `${acc},${curr.fileName}`, '').substring(1)
+  }`);
 };

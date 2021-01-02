@@ -1,12 +1,10 @@
 import axios from 'axios';
-import { formatISO, parseISO, startOfDay } from 'date-fns';
+import { formatISO, subDays, startOfDay, endOfDay } from 'date-fns';
 import { WhoopAuthenticationResponseData, WhoopCyclesResponseData } from './types';
 
-// eslint-disable-next-line import/prefer-default-export
 interface AuthenticationResponseData {
   accessToken: string,
   userID: number,
-  userCreateDate: string, // TODO: remove this once we've got baseline data
 }
 
 const whoopURL = 'https://api-7.whoop.com/';
@@ -26,7 +24,6 @@ const authenticateWithWhoop = async (): Promise<AuthenticationResponseData> => {
     return {
       accessToken: data.access_token,
       userID: data.user.id,
-      userCreateDate: data.user.createdAt,
     };
   } catch (error) {
     throw new Error(`Experienced error while authenticating with Whoop: ${JSON.stringify(error)}`);
@@ -34,12 +31,12 @@ const authenticateWithWhoop = async (): Promise<AuthenticationResponseData> => {
 };
 
 export const pullDataFromWhoopForLastDay = async (): Promise<WhoopCyclesResponseData> => {
-  const { accessToken, userID, userCreateDate } = await authenticateWithWhoop();
+  const { accessToken, userID } = await authenticateWithWhoop();
 
   const currentDate = new Date();
 
-  const startDate = startOfDay(parseISO(userCreateDate));
-  const endDate = startOfDay(currentDate);
+  const startDate = startOfDay(subDays(currentDate, 1));
+  const endDate = endOfDay(startDate);
 
   const url = `${whoopURL}${cyclesEndpoint(userID, startDate, endDate)}`;
   const headers = {
