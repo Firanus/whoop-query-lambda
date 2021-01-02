@@ -12,4 +12,7 @@ export const handler: Handler = async (): Promise<any> => {
   await Promise.all(
     dataToUpload.map((dataPoint) => uploadFileToS3Bucket(dataPoint.fileName, dataPoint.file)),
   );
+
+  // eslint-disable-next-line no-console
+  console.log(`Successfully uploaded the following files: ${dataToUpload.reduce((acc, curr) => `${acc},${curr.fileName}`, '')}`);
 };
