@@ -24,6 +24,10 @@ Resources:
       Code:
         ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ImageName}:${ImageTag}
       PackageType: Image
+      Environment:
+        Variables:
+          WHOOP_USERNAME: !Sub "{{resolve:secretsmanager:WhoopCredentials:SecretString:WHOOP_USERNAME}}"
+          WHOOP_PASSWORD: !Sub "{{resolve:secretsmanager:WhoopCredentials:SecretString:WHOOP_PASSWORD}}"
   WhoopQueryLambdaRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -49,6 +53,13 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: '*'
+        - PolicyName: KMSDecrypt
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 'kms:Decrypt'
+                Resource: '*'
         - PolicyName: AmazonS3ListObjectsInBucket
           PolicyDocument:
             Version: '2012-10-17'
@@ -67,3 +78,28 @@ Resources:
                   - 's3:PutObject'
                 Resource:
                   - !Sub 'arn:aws:s3:::${BucketName}/*'
+  # Rule to periodically call the lambda
+  WhoopLambdaScheduleRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      ScheduleExpression: cron(0 14 * * ? *)
+      Targets:
+        - Id: WhoopLambdaScheduleRule
+          Arn:
+            'Fn::GetAtt':
+              - WhoopQueryLambda
+              - Arn
+  # Role that can call the lambda
+  InvokeWhoopLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName:
+        'Fn::GetAtt':
+          - WhoopQueryLambda
+          - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn:
+        'Fn::GetAtt':
+          - WhoopLambdaScheduleRule
+          - Arn

@@ -11,6 +11,7 @@ In essence, infra sits above local project concerns, and so likely needs to be e
 - S3 Bucket (personal-data-lake-ivan)
 - Website (its whole own thing)
 - Cloudwatch events to auto-trigger this fella (reasonably could be located here).
+- Secrets (all created manually. Should we CloudFormation this?)
 - Deployment Pipeline for this lambda (still needs to be created)
   - Steps:
     - `docker build -t whoop-query-lambda .`
