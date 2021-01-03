@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+
+    - `docker build -t whoop-query-lambda .`
+    - `docker tag whoop-query-lambda:latest <ACCN_ID>.dkr.ecr.<REGION>.amazonaws.com/whoop-query-lambda:latest`
+    - `aws ecr get-login-password | docker login --username AWS --password-stdin <ACCN_IN>.dkr.ecr.<REGION>.amazonaws.com`
+    - `docker push <ACCN_ID>.dkr.ecr.<REGION>.amazonaws.com/whoop-query-lambda:latest`
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - REPOSITORY_ACCOUNT=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - `aws ecr get-login-password | docker login --username AWS --password-stdin $REPOSITORY_ACCOUNT`
+      - REPOSITORY_URI=$REPOSITORY_ACCOUNT/$ECR_REPO_NAME
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - npm install
+
+  build:
+    commands:
+      - docker images ls
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '{"name":"%s","imageUri":"%s"}' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
+    - "cloudformation/*"
+  discard-paths: yes
