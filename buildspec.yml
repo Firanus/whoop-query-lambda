@@ -5,11 +5,6 @@ phases:
     runtime-versions:
       nodejs: 12
 
-    - `docker build -t whoop-query-lambda .`
-    - `docker tag whoop-query-lambda:latest <ACCN_ID>.dkr.ecr.<REGION>.amazonaws.com/whoop-query-lambda:latest`
-    - `aws ecr get-login-password | docker login --username AWS --password-stdin <ACCN_IN>.dkr.ecr.<REGION>.amazonaws.com`
-    - `docker push <ACCN_ID>.dkr.ecr.<REGION>.amazonaws.com/whoop-query-lambda:latest`
-
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
