@@ -22,12 +22,14 @@ phases:
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
       - echo Writing image definitions file...
       - printf '{"name":"%s","imageUri":"%s"}' $ECR_REPO_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
