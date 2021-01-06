@@ -3,10 +3,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   ImageName:
     Type: String
-    Default: whoop-query-lambda
   ImageTag:
     Type: String
-    Default: latest
   BucketName:
     Type: String
     Default: personal-data-lake-ivan
