@@ -4,8 +4,6 @@ import { pullDataFromWhoopForLastDay, processWhoopDataForUpload } from './whoop'
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (): Promise<any> => {
-  console.log('This guy got hit! (Notification to check CD pipeline)')
-
   // Get Data
   const whoopResponseData = await pullDataFromWhoopForLastDay();
 
