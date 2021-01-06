@@ -10,6 +10,7 @@ Parameters:
     Default: personal-data-lake-ivan
 
 Resources:
+  # The lambda, created from an ECR Image
   WhoopQueryLambda:
     Type: AWS::Lambda::Function
     # Lambdas via ECR are a new feature, hence errors
@@ -26,6 +27,7 @@ Resources:
         Variables:
           WHOOP_USERNAME: !Sub "{{resolve:secretsmanager:WhoopCredentials:SecretString:WHOOP_USERNAME}}"
           WHOOP_PASSWORD: !Sub "{{resolve:secretsmanager:WhoopCredentials:SecretString:WHOOP_PASSWORD}}"
+  # Lambda IAM Role
   WhoopQueryLambdaRole:
     Type: 'AWS::IAM::Role'
     Properties:

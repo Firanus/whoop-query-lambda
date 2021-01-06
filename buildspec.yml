@@ -37,5 +37,5 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
-    - "cloudformation/*"
+    - cloudformation.yml
   discard-paths: yes
