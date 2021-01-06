@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { formatISO, subDays, startOfDay, endOfDay } from 'date-fns';
+import {
+  formatISO,
+  subDays,
+  startOfDay,
+  endOfDay,
+} from 'date-fns';
 import { WhoopAuthenticationResponseData, WhoopCyclesResponseData } from './types';
 
 interface AuthenticationResponseData {
